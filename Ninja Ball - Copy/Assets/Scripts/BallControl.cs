@@ -1,6 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BallControl : MonoBehaviour
 {
@@ -13,9 +14,9 @@ public class BallControl : MonoBehaviour
     float diffrenceY;
     float speed = 150;
 
-    bool startTouchDrag = false;
     public bool isGameActive = true;
     public bool abilityToLose = true;
+    bool isSceneLoaded = false;
 
     public GameObject prevoiusMousePos;
     public GameObject arrow;
@@ -24,7 +25,11 @@ public class BallControl : MonoBehaviour
     public GameObject defeat;
     public GameObject winLine;
 
+    public Touch touch;
+
     Rigidbody2D ballRB;
+
+
 
 
 
@@ -33,6 +38,7 @@ public class BallControl : MonoBehaviour
     {
         diffrenceY = cam.transform.position.y - transform.position.y;
         ballRB =  getRB(gameObject);
+        StartCoroutine(sceneLoaded());
     }
 
     // Update is called once per frame
@@ -64,27 +70,25 @@ public class BallControl : MonoBehaviour
             else if(SystemInfo.deviceType == DeviceType.Handheld){
 
                 
+                
                 if(Input.touchCount > 0){
-
-                    Touch touch = Input.GetTouch(0);
+                    touch = Input.GetTouch(0);
                     touchPos = Camera.main.ScreenToWorldPoint(touch.position);
 
-                    if(touch.phase == TouchPhase.Began){
+                    if(touch.phase  == TouchPhase.Began && isSceneLoaded){
 
                         prevoiusMousePos.transform.position = touchPos;
-                        startTouchDrag = true;
 
                         if(slowMotion())
                             Time.timeScale = 0.1f;
                         
 
-                    } else if(touch.phase == TouchPhase.Moved){
+                    } else if(touch.phase  == TouchPhase.Moved && isSceneLoaded){
                         hold();
-                        
-                    } else if(touch.phase == TouchPhase.Ended){
+                    } else if(touch.phase  == TouchPhase.Ended && isSceneLoaded){
                         let();
                     } 
-                }  
+                }
             }
         }
 
@@ -163,14 +167,12 @@ public class BallControl : MonoBehaviour
         speed = 150;
         Time.timeScale = 1f;
         Destroy(GameObject.Find("toturialHand"));
-
-        if(SystemInfo.deviceType == DeviceType.Handheld){
-            startTouchDrag = false; 
-        }
         
     }
 
-
-
+    IEnumerator sceneLoaded(){
+        yield return new WaitForSeconds(1);
+        isSceneLoaded = true;
+    }
     
 }
